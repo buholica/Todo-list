@@ -1,9 +1,5 @@
 from flask import Flask, render_template, request, redirect
-from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired
 from flask_bootstrap import Bootstrap5
-from datetime import datetime
 import requests
 from dotenv import load_dotenv
 import os
@@ -13,7 +9,7 @@ import json
 load_dotenv("C:\\Users\\Oksana\\Desktop\\passwords.env.txt")
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '8BYkEfBHO6O6doNzWlSihBXox7C0sKR6b'
+app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY')
 Bootstrap5(app)
 
 # SHEETY_TOKEN = os.getenv("SHEETY_TOKEN_TODO_L")
@@ -24,18 +20,18 @@ Bootstrap5(app)
 #     "Authorization": f"Bearer {SHEETY_TOKEN}",
 # }
 
-all_tasks = []
 today = Day()
 
 
 @app.route('/', methods=['GET'])
 def homepage():
-    all_tasks.clear()
     # sheety_response = requests.get(sheety_endpoint, headers=sheety_headers)
     # data = sheety_response.json()["list1"]
     with open('data.json') as data_json:
         data = json.load(data_json)["list1"]
-    return render_template("index.html", tasks=data, day=today.day)
+    all_tasks = [task for task in data]
+    print(all_tasks)
+    return render_template("index.html", tasks=all_tasks, day=today.day)
 
 
 @app.route('/active-tasks', methods=['GET'])
@@ -44,10 +40,8 @@ def show_active_tasks():
     # data = sheety_response.json()["list1"]
     with open('data.json') as data_json:
         data = json.load(data_json)["list1"]
-    status = request.args.get('status', default='active')
-    print(status)
-    active_tasks = [task for task in data if task['status'] == status]
-    print(active_tasks)
+    active_tasks = [task for task in data if task["status"] == "active"]
+
     return render_template("index.html", tasks=active_tasks, day=today.day)
 
 
@@ -63,7 +57,6 @@ def show_completed_tasks():
 @app.route('/add_task', methods=['POST'])
 def add_task():
     new_task = request.form.get('new-task')
-    all_tasks.append(new_task)
     with open('data.json') as data_json:
         data = json.load(data_json)["list1"]
     # sheety_data = {
@@ -79,20 +72,20 @@ def add_task():
             "description": new_task,
             "status": "active"
     }
-    print(sheety_data)
+
     with open('data.json') as data_json:
         data = json.load(data_json)
+
     data["list1"].append(sheety_data)
+
     with open('data.json', "w") as data_json:
-        json.dump(data, data_json,
-                        indent=4,
-                        separators=(',', ': '))
+        json.dump(data, data_json, indent=4, separators=(',', ': '))
     # requests.post(sheety_endpoint, json=sheety_data, headers=sheety_headers)
 
     return redirect('/')
 
 
-@app.route("/update_status", methods=['POST'])
+@app.route("/update_status", methods=['GET', 'POST'])
 def update_status():
     completed_task_id = request.form.get('task_id')
 
@@ -100,7 +93,7 @@ def update_status():
         data = json.load(data_json)
 
     for task in data["list1"]:
-        if task["id"] == int(completed_task_id):
+        if int(completed_task_id) == task["id"]:
             task["status"] = "completed"
 
     with open('data.json', "w") as data_json:
@@ -109,6 +102,22 @@ def update_status():
     return redirect("/")
 
 
+@app.route("/remove_task", methods=['POST'])
+def remove_task():
+    task_id = request.form.get('task_id')
+
+    with open('data.json') as data_json:
+        data = json.load(data_json)
+
+    for task in data["list1"]:
+        if int(task_id) == task["id"]:
+            data["list1"].remove(task)
+
+    with open('data.json', "w") as data_json:
+        json.dump(data, data_json, indent=4, separators=(',', ': '))
+
+    return redirect("/")
+
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)

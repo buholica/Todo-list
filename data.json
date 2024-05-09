@@ -2,33 +2,9 @@
     "list1": [
         {
             "id": 0,
-            "date": "Tuesday",
-            "description": "Create a presentation",
+            "date": "Wednesday",
+            "description": "Have a magnificent day)",
             "status": "completed"
-        },
-        {
-            "id": 1,
-            "date": "Tuesday",
-            "description": "Do yoga",
-            "status": "active"
-        },
-        {
-            "id": 2,
-            "date": "Tuesday",
-            "description": "Cook fish with rice",
-            "status": "completed"
-        },
-        {
-            "id": 3,
-            "date": "Tuesday",
-            "description": "Clean rhe room",
-            "status": "active"
-        },
-        {
-            "id": 4,
-            "date": "Tuesday",
-            "description": "Clean the dishes",
-            "status": "active"
         }
     ]
 }
