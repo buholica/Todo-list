@@ -1,1 +1,6 @@
 gunicorn==22.0.0
+Flask==3.0.3
+Bootstrap_Flask==2.4.0
+json==3.12.3
+os==3.12.3
+datetime==3.12.3

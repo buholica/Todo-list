@@ -1,12 +1,12 @@
 from flask import Flask, render_template, request, redirect
 from flask_bootstrap import Bootstrap5
-import requests
-from dotenv import load_dotenv
+# import requests
+# from dotenv import load_dotenv
 import os
 from day import Day
 import json
 
-load_dotenv("C:\\Users\\Oksana\\Desktop\\passwords.env.txt")
+# load_dotenv("C:\\Users\\Oksana\\Desktop\\passwords.env.txt")
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY')
