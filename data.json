@@ -2,8 +2,8 @@
     "list1": [
         {
             "id": 0,
-            "date": "Wednesday",
-            "description": "Have a magnificent day)",
+            "date": "Friday",
+            "description": "Create a todo list",
             "status": "completed"
         }
     ]

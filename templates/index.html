@@ -37,6 +37,9 @@
                             <li role="presentation" class="nav-item completed-task"><a href="{{url_for('show_completed_tasks')}}" class="nav-link">Completed</a></li>
                         </ul>
                         <div class="todo-list">
+                            {% if tasks|length == 0: %}
+                                <p class="message">{{message}}</p>
+                            {% endif %}
                             {% for task in tasks: %}
                                 <div class="todo-item row align-items-center">
                                     <div class="col-lg-1 col-md-1 col-sm-1 col-sxs-1 col-1 text-start">
@@ -50,7 +53,11 @@
                                         </form>
                                     </div>
                                     <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10 col-8">
-                                        <span class="task">{{task["description"]}}</span>
+                                        {% if task["status"] == "completed": %}
+                                            <span class="task"style="text-decoration: line-through">{{task["description"]}}</span>
+                                        {% else %}
+                                            <span class="task">{{task["description"]}}</span>
+                                        {% endif %}
                                     </div>
                                     <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1 col-1 text-end">
                                         <form action="/remove_task" method="post">
