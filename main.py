@@ -2,7 +2,6 @@ from flask import Flask, render_template, request, redirect, session
 import os
 from day import Day
 import requests
-import json
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY')
