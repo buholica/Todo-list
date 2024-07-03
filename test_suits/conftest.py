@@ -9,6 +9,7 @@ def set_up(playwright: Playwright):
     context = browser.new_context()
     page = context.new_page()
     page.goto("https://todo-list-xjvc.onrender.com/")
+    page.wait_for_load_state(state="domcontentloaded")
 
     yield page
 

@@ -27,9 +27,16 @@
                     <div class="card-body">
                         <form action="/add_task" method="post">
                             <div class="input-group mb-3">
-                                    <input name="new-task" type="text" class="form-control" placeholder="New Task ..." aria-label="New Task" aria-describedby="button-addon2">
-                                    <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Add</button>
+                                <input name="new-task" type="text" class="form-control" placeholder="New Task ..." aria-label="New Task" aria-describedby="button-addon2">
+                                <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Add</button>
                             </div>
+                            {% with messages = get_flashed_messages() %}
+                                {% if messages %}
+                                    {% for message in messages %}
+                                        <p class="flash" style="color:red;">{{ message }}</p>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endwith %}
                         </form>
                         <ul class="nav nav-pills todo-nav">
                             <li role="presentation" class="nav-item all-task active"><a href="/" class="nav-link">All</a></li>
@@ -41,11 +48,11 @@
                                 <p class="message">{{message}}</p>
                             {% endif %}
                             {% for task in tasks: %}
-                                <div class="todo-item row align-items-center">
+                                <div class="todo-item row align-items-center" role="rowgroup">
                                     <div class="col-lg-1 col-md-1 col-sm-1 col-sxs-1 col-1 text-start">
                                         <form action="/update_status" method="post">
                                             {% if task["status"] == "active": %}
-                                            <button class="btn btn-outline-primary btn-sm update-btn" type="submit" id="button-addon3">✓</button>
+                                                <button class="btn btn-outline-primary btn-sm update-btn" type="submit" id="button-addon3">✓</button>
                                             {% else: %}
                                                 <button class="btn btn-primary btn-sm update-btn" type="submit" id="button-addon4" disabled>✓</button>
                                             {% endif %}
@@ -54,7 +61,7 @@
                                     </div>
                                     <div class="col-lg-10 col-md-10 col-sm-10 col-xs-10 col-8">
                                         {% if task["status"] == "completed": %}
-                                            <span class="task"style="text-decoration: line-through">{{task["description"]}}</span>
+                                            <span class="task" role="columnheader" style="text-decoration: line-through">{{task["description"]}}</span>
                                         {% else %}
                                             <span class="task">{{task["description"]}}</span>
                                         {% endif %}

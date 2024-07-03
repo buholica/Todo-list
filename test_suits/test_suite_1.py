@@ -29,5 +29,21 @@ def test_completed_tasks_page(set_up):
     page = set_up
     page.get_by_role("link", name="Completed").click()
     paragraph = page.get_by_role("paragraph")
-    page.screenshot()
     expect(paragraph).to_contain_text("There are no completed tasks currently.")
+
+
+def test_adding_new_task(set_up):
+    page = set_up
+    text = "Create Test Plan"
+    page.get_by_role("textbox", name="New Task").fill(text)
+    page.get_by_role("button", name="Add").click()
+    page.wait_for_selector("div.todo-item")
+    added_text = page.get_by_text(text)
+    expect(added_text).to_be_visible()
+
+
+def test_adding_new_empty_task(set_up):
+    page = set_up
+    page.get_by_role("button", name="Add").click()
+    page.wait_for_selector("span.flash")
+    expect("Please, type a new task.").to_be_visible()

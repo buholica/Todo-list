@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, flash
 import os
 from day import Day
 import requests
@@ -68,25 +68,29 @@ def show_completed_tasks():
     return render_template("index.html", tasks=valid_tasks, day=today.day, message=message)
 
 
-@app.route('/add_task', methods=['POST'])
+@app.route('/add_task', methods=["GET", "POST"])
 def add_task():
     data = get_tasks_from_sheet()
 
     new_task = request.form.get('new-task')
-    new_task = {
-        "list1": {
-            "id": data[-1]["id"] + 1,
-            "date": today.day,
-            "description": new_task,
-            "status": "active"
+    print(f"The length of new_task is {new_task}")
+
+    if len(new_task) == 0:
+        flash("Please, type a new task.")
+    else:
+        new_task = {
+            "list1": {
+                "id": data[-1]["id"] + 1,
+                "date": today.day,
+                "description": new_task,
+                "status": "active"
+            }
         }
-    }
+        session["tasks"].append(new_task["list1"]["id"])
+        session.modified = True
 
-    session["tasks"].append(new_task["list1"]["id"])
-    session.modified = True
-
-    sheets_post_response = requests.post(sheets_endpoint, json=new_task, headers=sheets_headers)
-    sheets_post_response.raise_for_status()
+        sheets_post_response = requests.post(sheets_endpoint, json=new_task, headers=sheets_headers)
+        sheets_post_response.raise_for_status()
 
     return redirect('/')
 
