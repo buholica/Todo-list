@@ -2,8 +2,8 @@ import pytest
 from playwright.sync_api import Playwright
 
 
-@pytest.fixture()
-def set_up(playwright: Playwright):
+@pytest.fixture(scope="session")
+def set_up_context(playwright: Playwright):
     chromium = playwright.chromium
     browser = chromium.launch(headless=False)
     context = browser.new_context()
@@ -13,5 +13,9 @@ def set_up(playwright: Playwright):
 
     yield page
 
-    context.close()
     browser.close()
+
+
+@pytest.fixture(scope="session")
+def set_up_page(set_up_context):
+    return set_up_context

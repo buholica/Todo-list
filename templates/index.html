@@ -48,7 +48,7 @@
                                 <p class="message">{{message}}</p>
                             {% endif %}
                             {% for task in tasks: %}
-                                <div class="todo-item row align-items-center" role="rowgroup">
+                                <div class="todo-item row align-items-center" title="Todo item">
                                     <div class="col-lg-1 col-md-1 col-sm-1 col-sxs-1 col-1 text-start">
                                         <form action="/update_status" method="post">
                                             {% if task["status"] == "active": %}
