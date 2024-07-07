@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, session, flash
 import os
 from day import Day
 import requests
+import json
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY')
@@ -17,12 +18,21 @@ sheets_headers = {
 
 def get_tasks_from_sheet():
     """Function to get tasks from Google Sheets using Sheety API"""
-    response = requests.get(sheets_endpoint, headers=sheets_headers)
-    response.raise_for_status()
-    return response.json()["list1"]
+    try:
+        response = requests.get(sheets_endpoint, headers=sheets_headers)
+        response.raise_for_status()
+        return response.json()["list1"]
+    except requests.exceptions.HTTPError as error:
+        if response.status_code == 402:
+            print("402. The 200 requests quota is past for SHEETY API.")
+        else:
+            print(f"HTTP error occurred: {error}")
+
+        with open('data.json') as data_json:
+            return json.load(data_json)["list1"]
 
 
-@app.route('/', methods=['GET'])
+@app.route('/', methods=["GET"])
 def homepage():
     data = get_tasks_from_sheet()
 
@@ -73,7 +83,6 @@ def add_task():
     data = get_tasks_from_sheet()
 
     new_task = request.form.get('new-task')
-    print(f"The length of new_task is {new_task}")
 
     if len(new_task) == 0:
         flash("Please, type a new task.")
@@ -86,11 +95,23 @@ def add_task():
                 "status": "active"
             }
         }
+
         session["tasks"].append(new_task["list1"]["id"])
         session.modified = True
 
-        sheets_post_response = requests.post(sheets_endpoint, json=new_task, headers=sheets_headers)
-        sheets_post_response.raise_for_status()
+        try:
+            sheets_post_response = requests.post(sheets_endpoint, json=new_task, headers=sheets_headers)
+            sheets_post_response.raise_for_status()
+        except Exception as error:
+            print(f"The error occurred:\n {type(error).__name__} - {error}")
+
+            with open('data.json') as data_json:
+                data = json.load(data_json)
+            data["list1"].append(new_task["list1"])
+            with open('data.json', "w") as data_json:
+                json.dump(data, data_json,
+                          indent=4,
+                          separators=(',', ': '))
 
     return redirect('/')
 
@@ -112,9 +133,24 @@ def update_status():
                     "status": "completed"
                 }
             }
-            sheets_put_response = requests.put(sheets_endpoint + f"/{completed_task_id_int}", json=updated_task, headers=sheets_headers)
-            sheets_put_response.raise_for_status()
-            break
+            try:
+                sheets_put_response = requests.put(sheets_endpoint + f"/{completed_task_id_int}", json=updated_task,
+                                                   headers=sheets_headers)
+                sheets_put_response.raise_for_status()
+                break
+            except Exception as error:
+                print(f"The error occurred:\n {type(error).__name__} - {error}")
+
+                with open('data.json') as data_json:
+                    data = json.load(data_json)
+
+                task_index = data["list1"].index(task)
+                del data["list1"][task_index]
+                data["list1"].append(updated_task["list1"])
+                with open('data.json', "w") as data_json:
+                    json.dump(data, data_json,
+                              indent=4,
+                              separators=(',', ': '))
 
     return redirect("/")
 
@@ -130,9 +166,23 @@ def remove_task():
         if task_id_int == task["id"]:
             session["tasks"].remove(task_id_int)
             session.modified = True
-            sheets_delete_response = requests.delete(sheets_endpoint + f"/{task_id_int}", headers=sheets_headers)
-            sheets_delete_response.raise_for_status()
-            break
+
+            try:
+                sheets_delete_response = requests.delete(sheets_endpoint + f"/{task_id_int}", headers=sheets_headers)
+                sheets_delete_response.raise_for_status()
+                break
+            except Exception as error:
+                print(f"The error occurred:\n {type(error).__name__} - {error}")
+
+                with open('data.json') as data_json:
+                    data = json.load(data_json)
+
+                task_index = data["list1"].index(task)
+                del data["list1"][task_index]
+                with open('data.json', "w") as data_json:
+                    json.dump(data, data_json,
+                              indent=4,
+                              separators=(',', ': '))
 
     return redirect("/")
 
