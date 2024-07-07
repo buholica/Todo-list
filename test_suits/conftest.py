@@ -8,7 +8,7 @@ def set_up_context(playwright: Playwright):
     browser = chromium.launch(headless=False)
     context = browser.new_context()
     page = context.new_page()
-    page.goto("http://127.0.0.1:5000")
+    page.goto("https://todo-list-xjvc.onrender.com/")
     page.wait_for_load_state(state="networkidle")
 
     yield page
