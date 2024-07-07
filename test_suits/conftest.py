@@ -5,7 +5,7 @@ from playwright.sync_api import Playwright
 @pytest.fixture(scope="session")
 def set_up_context(playwright: Playwright):
     chromium = playwright.chromium
-    browser = chromium.launch(headless=False)
+    browser = chromium.launch(headless=True)
     context = browser.new_context()
     page = context.new_page()
     page.goto("https://todo-list-xjvc.onrender.com/")
