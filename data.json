@@ -5,12 +5,6 @@
             "date": "Monday",
             "description": "Fix bugs in todo list app",
             "status": "active"
-        },
-        {
-            "id": 2,
-            "date": "Sunday",
-            "description": "Create Test Plan",
-            "status": "active"
         }
     ]
 }
